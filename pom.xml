@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd ">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>eu.rd-connect</groupId>
+    <artifactId>rdconnect-cas4-management-overlay</artifactId>
+    <packaging>war</packaging>
+    <version>0.2.3</version>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- These dependencies are needed to avoid conflicts -->
+			<dependency>
+				<groupId>xml-apis</groupId>
+				<artifactId>xml-apis</artifactId>
+				<version>${xml-apis.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-orm</artifactId>
+				<version>${spring.orm.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-webmvc</artifactId>
+				<version>${spring.orm.version}</version>
+			</dependency>
+			<!--
+				These two dependencies were added due
+				https://groups.google.com/forum/#!topic/jasig-cas-user/WsxxUHahrM8
+				Basically, with default version in CAS 4.1.1, LDAP attribute
+				names with capital letters are not recognized, being skipped
+			-->
+			<dependency>
+				<groupId>org.jasig.service.persondir</groupId>
+				<artifactId>person-directory-api</artifactId>
+				<version>${cas.person.directory.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.jasig.service.persondir</groupId>
+				<artifactId>person-directory-impl</artifactId>
+				<version>${cas.person.directory.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+    <dependencies>
+	<!-- These dependencies are needed to avoid conflicts -->
+	<!--
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-orm</artifactId>
+		<version>${spring.orm.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-webmvc</artifactId>
+		<version>${spring.orm.version}</version>
+	</dependency>
+	-->
+	<!-- These are the real dependencies -->
+        <dependency>
+            <groupId>org.jasig.cas</groupId>
+            <artifactId>cas-management-webapp</artifactId>
+            <version>${cas.version}</version>
+            <type>war</type>
+            <scope>runtime</scope>
+        </dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-ldap</artifactId>
+			<version>${spring.security.ldap.version}</version>
+			<exclusions>
+				<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-aop</artifactId>
+				</exclusion>
+				<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-tx</artifactId>
+				</exclusion>
+				<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-beans</artifactId>
+				</exclusion>
+				<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-context</artifactId>
+				</exclusion>
+				<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+        <dependency>
+            <groupId>org.jasig.cas</groupId>
+            <artifactId>cas-server-support-ldap</artifactId>
+            <version>${cas.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <warName>cas-management</warName>
+                    <overlays>
+                        <overlay>
+                            <groupId>org.jasig.cas</groupId>
+                            <artifactId>cas-management-webapp</artifactId>
+                            <excludes>
+                                <exclude>WEB-INF/classes/log4j2.xml</exclude>
+                                <!--
+                                <exclude>WEB-INF/lib/hibernate-*.jar</exclude>
+                                -->
+                                <exclude>WEB-INF/lib/person-directory-*.jar</exclude>
+                            </excludes>
+                        </overlay>
+                    </overlays>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+        <finalName>cas-management</finalName>
+    </build>
+
+    <properties>
+        <cas.version>4.1.7</cas.version>
+        <cas.person.directory.version>1.7.1</cas.person.directory.version>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- These come from CAS dependencies -->
+        <spring.security.ldap.version>4.0.1.RELEASE</spring.security.ldap.version>
+        <spring.orm.version>4.1.8.RELEASE</spring.orm.version>
+        <xml-apis.version>1.4.01</xml-apis.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>sonatype-releases</id>
+            <url>http://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+</project>
